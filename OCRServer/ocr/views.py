@@ -2,10 +2,11 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import HttpResponse
 from django.http import JsonResponse
-from .ocr import do_ocr  # ocr.py에서 getText함수 가져오기
+from .ocr import do_ocr  # ocr.py에서 do_ocr 함수 import
 
 @csrf_exempt
 def imageToText(request):
+    # 이미지로 불러오는데 실패할 경우, fail이라는 값을 가져오게 끔 기본값을 fail로 설정
     response_data = {
             'text': "fail",
         }
@@ -25,4 +26,5 @@ def imageToText(request):
             'text': result,
         }
         return JsonResponse(response_data)
+    # 이미지를 저장하지 못했다면 => 앞서 저장한 fail이 Json으로 반환될 것임
     return JsonResponse(response_data)
