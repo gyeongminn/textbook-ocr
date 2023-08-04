@@ -33,7 +33,8 @@ http://127.0.0.1:8000/imageToText/
 
 ![스크린샷 2023-08-05 오전 12 15 46](https://github.com/SumNote/DjangoServer/assets/109474668/f846da15-f7e5-49e7-8a61-273ff78686d2)
 
-서버에서 이미지 저장에 실패하여 OCR작업에 실패하였다면 {"text": "TextBook's Text String Data"} 형식으로 Json을 받는다.
+서버에서 이미지 저장에 실패하여 OCR작업에 성공하였다면 {"text": "TextBook's Text String Data"} 형식으로 Json을 받는다.
+(현재는 ocr코드가 완성되어있다고 가정하고 성공시 "TextBook's Text String Data"를 리턴하도록 하였다. 원래는 이곳에서 교과서에서 인식한 모든 글자들을 리턴받도록 한다.)
 
 ![스크린샷 2023-08-05 오전 12 03 17](https://github.com/SumNote/DjangoServer/assets/109474668/fd964355-3976-468f-9b11-15fd8b410f43)
 
