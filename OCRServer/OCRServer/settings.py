@@ -108,6 +108,8 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
+APPEND_SLASH = False # api형식 설정
+
 USE_I18N = True
 
 USE_TZ = True
