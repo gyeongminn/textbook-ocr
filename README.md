@@ -17,8 +17,8 @@ source ./myenv/bin/activate
 pip3 install django
 
 2. pytesserect
-# brew install tesseract
-# brew install tesseract-lang
+brew install tesseract
+brew install tesseract-lang
 pip3 install pytesseract
 
 ...(ocr코드 작성 이후 추가 예정)...
