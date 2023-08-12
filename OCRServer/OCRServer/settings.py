@@ -25,8 +25,8 @@ SECRET_KEY = 'django-insecure-omvf&5a(6c_57+y5*50d54e#g*!jdqfn&=o=ll_0k$r54c6gao
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+# 안드로이드 연동 허용(안드로이드 에뮬레이터 상의 가상 로컬 주소로 엑세스 허용)
+ALLOWED_HOSTS = ['10.0.2.2']
 
 # Application definition
 
