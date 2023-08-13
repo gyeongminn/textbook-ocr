@@ -16,6 +16,11 @@ source ./myenv/bin/activate
 1. django
 pip3 install django
 
+2. pytesserect
+brew install tesseract
+brew install tesseract-lang
+pip3 install pytesseract
+
 ...(ocr코드 작성 이후 추가 예정)...
 
 Django서버를 실행시키는 방법은 아래와 같다.
