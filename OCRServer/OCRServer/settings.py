@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-omvf&5a(6c_57+y5*50d54e#g*!jdqfn&=o=ll_0k$r54c6gao
 DEBUG = True
 
 # 안드로이드 연동 허용(안드로이드 에뮬레이터 상의 가상 로컬 주소로 엑세스 허용)
-ALLOWED_HOSTS = ['10.0.2.2']
+ALLOWED_HOSTS = ["*"] # 모든 주소 엑세스 허용
 
 # Application definition
 
