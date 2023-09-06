@@ -13,13 +13,26 @@ source ./myenv/bin/activate
 현재 상태(8월 4일)에서 OCRServer를 이용하기 위해 설치해야 하는 라이브러리는 아래와 같다.
 라이브러리는 가상환경에 진입한 후 설치하는 것을 권장한다.
 
-1. django
-pip3 install django
+1. 터미널 창에서 원하는 폴더 위치에서 `git clone "복사한 링크"` 를 입력한다.
 
-2. pytesserect
-brew install tesseract
-brew install tesseract-lang
-pip3 install pytesseract
+2. 다운 받은 폴더 위치로 이동한다. (최상위 폴더에 manage.py 파일이 위치하도록) ex) `cd OCRServer`
+만약 현재 폴더 위치에 manage.py 파일이 있다면 이동할 필요 없다.
+
+3. 가상환경을 만들어준다.
+`python3 -m venv venv`
+
+4. 가상환경을 실행한다.
+`source venv/bin/activate`
+
+5. pip install -r requirements.txt 를 터미널 창에서 실행한다.
+<br>추가적으로 pytesserect 설치를 진행한다.
+<br>brew install tesseract
+<br>brew install tesseract-lang
+
+6. manage.py 파일이 위치하도록 한 최상위 폴더에 secrets.json을 생성하고 내용은 노션을 참고하여 추가한다.
+7. python3 manage.py makemigrations
+8. python3 manage.py migrate
+9. python3 manage.py migrate --run-syncdb
 
 ...(ocr코드 작성 이후 추가 예정)...
 
