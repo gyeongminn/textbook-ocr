@@ -19,7 +19,6 @@ from django.urls import path,include
 
 urlpatterns = [
     path('',include('ocr.urls')),
-
     path('gpts/',include('gpts.urls')),
     path('admin/', admin.site.urls),
 ]
