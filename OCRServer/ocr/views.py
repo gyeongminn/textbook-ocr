@@ -5,6 +5,44 @@ from django.http import JsonResponse
 from .ocr import do_ocr  # ocr.py에서 do_ocr 함수 import
 from .gpt_api import gpt_sum, gpt_pro
 import re
+import json
+
+# 문제 생성 테스트
+# @csrf_exempt
+# def genQuiz(request):
+#     # 이곳에 문제 생성을 희망하는 요약 노트 작성
+#     result = gpt_pro("""
+#     [데이터베이스의 정규화]
+#         #1 제1정규형 : 각 행의 값이 원자 값이어야 하며, 중복된 행이 없어야 한다.
+#         #2 제2정규형 : 제1정규형을 만족하고, 부분 함수 종속을 제거해야 한다.
+#         #3 제3정규형 : 제2정규형을 만족하고, 이행성 종속을 제거해야 한다.
+#         #4 BCNF : 제3정규형을 만족하고, 모든 결정자가 후보 키가 되어야 한다.
+#     """)
+#     # 생성한 문제 리턴
+#     response_data = {
+#         "quiz" : result
+#     }
+#     return JsonResponse(response_data)
+
+@csrf_exempt
+def genQuiz(request):
+    if request.method == 'POST':
+        # POST 데이터를 JSON으로 파싱
+        data = json.loads(request.body.decode('utf-8'))
+        
+        # gpt_pro 함수에 전달하고 결과를 받음
+        # 여기서 가정은 data에 "content"라는 키가 있고 그 값이 gpt_pro에 전달될 문자열이라는 것입니다.
+        result = gpt_pro(data['content'])
+        
+        # 결과를 JsonResponse로 반환
+        response_data = {
+            "quiz": result
+        }
+        return JsonResponse(response_data)
+    else:
+        # POST 요청이 아닐 경우의 처리 (예: 에러 메시지 반환)
+        return JsonResponse({"error": "Only POST method is supported."})
+
 
 @csrf_exempt
 def imageToText(request):
@@ -23,7 +61,7 @@ def imageToText(request):
                     f.write(chunk)
             print("image saved!")  # 저장 성공 로그 확인용
 
-             # get_sum에 요약할 내용 입력
+            # get_sum에 요약할 내용 입력
             sum_result = gpt_sum("""
             술이 없는(없었던) 문화권은 찾아보기 힘들다. 또한 지역과 문화의 특색에 따라 많고 많은 종류의 술이 존재한다. 그만큼 술은 인간의 문화와 밀접하게 엮여 있는 물건이다.
 
@@ -69,6 +107,13 @@ def imageToTextTest(request):
             """)
         
 #         sum_result = gpt_sum("""
+# 1. 개요[편집]
+# 자동차(自動車, automobile) 또는 간단히 차(車, car)는 원동기의 힘을 통해 차체의 바퀴를 노면과 마찰시켜 그 반작용으로 움직이는 교통 수단을 말한다. 자동차는 20세기 이후 인류의 가장 보편적인 교통 수단이 되었으며, 다양한 과학 기술과 목적이 모여 만들어져 현대 문명에 빠질 수 없는 것 중 하나다. 현대의 자동차는 휘발유, 경유, 가스, 전기, 수소 등을 연료로 움직인다.
+# 2. 정의[편집]
+# 본래 원동기의 동력을 이용하는 탈것은 사전적인 의미의 자동차에 속한다. 대한민국 법령에서는 원동기장치자전거[2], 전기자전거나 전동휠체어 등은 제외한 자동차관리법 제3조와 대통령령으로 규정하는 탈것을 자동차라고 한다. 군용차의 경우 기술적 제원으로는 군용무기로 간주해 자동차관리법의 적용대상은 아니지만, 공도상에서는 장갑차, 표준차량, 민수차량 모두 도로교통법상의 자동차로 인정한다는 대법원 판례(94도1519)가 있다.
+# """)
+        
+#         sum_result = gpt_sum("""
 #             술이 없는(없었던) 문화권은 찾아보기 힘들다. 또한 지역과 문화의 특색에 따라 많고 많은 종류의 술이 존재한다. 그만큼 술은 인간의 문화와 밀접하게 엮여 있는 물건이다.
 
 # '술'이라는 낱말의 $어원$은 삼국시대부터 나타난다. 삼국사기〈지리지〉에서는 압록강 이북의 '풍부성(豐夫城)'이라는 고장이 원래 고구려의 소파홀(肖巴忽)이었다고 기록하고 있는데, 豐은 '술잔 받침'이라는 뜻도 있으므로 '소파(肖巴)'가 '술'의 고구려 어형이었음을 추정해볼 수 있다. 신라의 17관등 중 제일 높은 이벌찬은 '서발한(舒發翰)' 혹은 '서불한(舒弗邯)'이라고도 불렸는데, 이를 신라시대 때 훈차하여 '주다(酒多)'라고도 했다는 기록이 남아있다. '多'는 '많다'의 옛말 '하다'의 어간을 빌려 '한'~'간'을 표기한 것으로 보이므로, 술을 뜻하는 酒가 신라어 '서발' 혹은 '서불'에 대응됨을 알 수 있다.
@@ -105,16 +150,29 @@ def imageToTextTest(request):
 
 # """)
 
-        # 정규 표현식을 사용하여 제목과 요약 추출
-        title_match = re.search(r'\[(.*?)\]', sum_result)
+        # # 정규 표현식을 사용하여 제목과 요약 추출
+        # title_match = re.search(r'\[(.*?)\]', sum_result)
         
 
-        # title과 summary 추출
-        title = title_match.group(1) if title_match else ""
+        # # title과 summary 추출
+        # title = title_match.group(1) if title_match else ""
         
-        # 제목을 제외한 나머지 줄을 summary에 저장
-        lines = sum_result.split('\n')
-        summary = '\n'.join(lines[1:]) if len(lines) > 1 else ""
+        # # 제목을 제외한 나머지 줄을 summary에 저장
+        # lines = sum_result.split('\n')
+        # summary = '\n'.join(lines[1:]) if len(lines) > 1 else ""
+
+        # # 결과 출력
+        # print("Title:", title)
+        # print("Summary:", summary)
+
+        # 정규 표현식을 사용하여 제목과 요약 추출
+        title_match = re.search(r'\[(.*?)\]', sum_result)
+
+        # title 추출
+        title = title_match.group(1) if title_match else ""
+
+        # title 부분을 제거하고 나머지를 summary에 저장
+        summary = re.sub(r'\[.*?\]', '', sum_result).strip()
 
         # 결과 출력
         print("Title:", title)
