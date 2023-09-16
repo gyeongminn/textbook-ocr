@@ -145,7 +145,6 @@ def gpt_pro(data):
 
     completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
 
-
     result = completion.choices[0].message["content"].strip()
 
     print(f"GPT Quiz: {result}")
