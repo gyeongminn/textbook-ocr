@@ -235,10 +235,6 @@ def generateProblem(request):
 
         # Quiz 객체를 출력
         print(quiz)
-
-
-
-        
         
         return JsonResponse(quiz)
     # 이미지를 저장하지 못했다면 => 앞서 저장한 fail이 Json으로 반환될 것임
