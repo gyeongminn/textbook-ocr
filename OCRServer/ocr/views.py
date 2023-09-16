@@ -209,18 +209,22 @@ def generateProblem(request):
         query_match = re.search(r'&(.+)&', problem_result)
         answer_list_matches = re.findall(r'#(.+?)#', problem_result)
         answer_num_match = re.search(r'(\d+)', problem_result)
+        commentary_match = re.findall(r'@(.*?)@', problem_result)
 
         # query, answerList, answerNum 추출
         query = query_match.group(1) if query_match else ""
         answer_list = answer_list_matches if answer_list_matches else []
         answer_num = int(answer_num_match.group(1)) if answer_num_match else 0
+        commentary = [match.strip() for match in commentary_match]
+        
 
         # 분류 결과를 스마트폰으로 반환 (JSON 형태로 반환)
         # Quiz 객체 생성
         quiz = {
-            "query": query,
-            "answerList": answer_list,
-            "answerNum": answer_num
+            "question": query,
+            "selections": answer_list,
+            "answer": answer_num,
+            "commentary" : commentary
         }
 
         # Quiz 객체를 출력
