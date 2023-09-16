@@ -10,8 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-from pathlib import Path
+import json
+from django.core.exceptions import ImproperlyConfigured
 import os
+from pathlib import Path
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,8 +23,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
+secret_file = BASE_DIR / 'secrets.json'
+with open(secret_file) as file:
+    secrets = json.loads(file.read())
+
+def get_secret(setting, secrets_dict=secrets):
+    try:
+        return secrets_dict[setting]
+    except KeyError:
+        error_msg = f'Set the {setting} environment variable'
+        raise ImproperlyConfigured(error_msg)
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-omvf&5a(6c_57+y5*50d54e#g*!jdqfn&=o=ll_0k$r54c6gao'
+SECRET_KEY = get_secret('SECRET_KEY')
+
+# SECURITY WARNING: keep the secret key used in production secret!
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -58,7 +74,7 @@ ROOT_URLCONF = 'OCRServer.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -125,8 +141,8 @@ STATIC_URL = 'static/'
 
 
 MEDIA_URL = 'media/' #미디어 파일에 대한 경로 지정, 사진 업로드에 사용
-MEDIA_ROOT = BASE_DIR / 'media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_ROOT = BASE_DIR / 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
