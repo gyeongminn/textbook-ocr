@@ -199,31 +199,37 @@ def generateProblem(request):
 
     if request.method == 'POST':
         
+        content = json.loads(request.body)
+        
+        print(f'content : {content}')
 
         # get_pro 에 해당 요약된 노트 내용 전달
-        problem_result = gpt_pro("""
-
-        """)
+        problem_result = gpt_pro(content)
 
         # 정규 표현식을 사용하여 문자열을 파싱
         query_match = re.search(r'&(.+)&', problem_result)
         answer_list_matches = re.findall(r'#(.+?)#', problem_result)
-        answer_num_match = re.search(r'(\d+)', problem_result)
+        answer_num_match = re.search(r'\*(.*?)\*', problem_result)
         commentary_match = re.findall(r'@(.*?)@', problem_result)
 
         # query, answerList, answerNum 추출
-        query = query_match.group(1) if query_match else ""
-        answer_list = answer_list_matches if answer_list_matches else []
-        answer_num = int(answer_num_match.group(1)) if answer_num_match else 0
+        question = query_match.group(1) if query_match else ""
+        selections = answer_list_matches if answer_list_matches else []
+        answer = answer_num_match.group(1) if answer_num_match else ""
         commentary = [match.strip() for match in commentary_match]
         
+        # 결과를 []로 감싸기
+        question = f"[{question}]"
+        selections = "[" + "][".join(selections) + "]"
+        answer = f"[{answer}]"
+        commentary = "[" + "][".join(commentary) + "]"
 
         # 분류 결과를 스마트폰으로 반환 (JSON 형태로 반환)
         # Quiz 객체 생성
         quiz = {
-            "question": query,
-            "selections": answer_list,
-            "answer": answer_num,
+            "question": question,
+            "selections": selections,
+            "answer": answer,
             "commentary" : commentary
         }
 
