@@ -87,8 +87,6 @@ def detect_main_text_using_pitch(text_data):
 
     return main_text_data
 
-reader = easyocr.Reader(['ko', 'en'])
-result = reader.readtext('img.jpg')
 
 def do_ocr(image_path):
     image = cv2.imread(image_path)
