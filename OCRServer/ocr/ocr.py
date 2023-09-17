@@ -90,7 +90,9 @@ def detect_main_text_using_pitch(text_data):
 reader = easyocr.Reader(['ko', 'en'])
 result = reader.readtext('img.jpg')
 
-def do_ocr(image):
+def do_ocr(image_path):
+    image = cv2.imread(image_path)
+    
     # OCR
     reader = easyocr.Reader(['ko', 'en'], gpu=True)
     text_data = reader.readtext(image)
