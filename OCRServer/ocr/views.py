@@ -48,7 +48,10 @@ def genQuiz(request):
 def imageToText(request):
     # 이미지로 불러오는데 실패할 경우, fail이라는 값을 가져오게 끔 기본값을 fail로 설정
     response_data = {
-            'text': "fail",
+        'text': "fail",
+        'title' : "fail",
+        'summary' : "fail",
+        'sum_result' : "fail"
     }
     if request.method == 'POST' and request.FILES.get('image'):
         image = request.FILES['image']
@@ -61,21 +64,34 @@ def imageToText(request):
                     f.write(chunk)
             print("image saved!")  # 저장 성공 로그 확인용
 
-            # get_sum에 요약할 내용 입력
-            sum_result = gpt_sum("""
-            술이 없는(없었던) 문화권은 찾아보기 힘들다. 또한 지역과 문화의 특색에 따라 많고 많은 종류의 술이 존재한다. 그만큼 술은 인간의 문화와 밀접하게 엮여 있는 물건이다.
-
-'술'이라는 낱말의 $어원$은 삼국시대부터 나타난다. 삼국사기〈지리지〉에서는 압록강 이북의 '풍부성(豐夫城)'이라는 고장이 원래 고구려의 소파홀(肖巴忽)이었다고 기록하고 있는데, 豐은 '술잔 받침'이라는 뜻도 있으므로 '소파(肖巴)'가 '술'의 고구려 어형이었음을 추정해볼 수 있다. 신라의 17관등 중 제일 높은 이벌찬은 '서발한(舒發翰)' 혹은 '서불한(舒弗邯)'이라고도 불렸는데, 이를 신라시대 때 훈차하여 '주다(酒多)'라고도 했다는 기록이 남아있다. '多'는 '많다'의 옛말 '하다'의 어간을 빌려 '한'~'간'을 표기한 것으로 보이므로, 술을 뜻하는 酒가 신라어 '서발' 혹은 '서불'에 대응됨을 알 수 있다.
-            """)
-
             # 이미지에서 추출한 텍스트 받아오기
             result = do_ocr('media/book.jpg')
 
+             # get_sum에 요약할 내용 입력
+            sum_result = gpt_sum(result)
+
+
+            # 정규 표현식을 사용하여 제목과 요약 추출
+            title_match = re.search(r'\[(.*?)\]', sum_result)
+    
+            # title 추출
+            title = title_match.group(1) if title_match else ""
+    
+            # title 부분을 제거하고 나머지를 summary에 저장
+            summary = re.sub(r'\[.*?\]', '', sum_result).strip()
+    
+            # 결과 출력
+            print("Title:", title)
+            print("Summary:", summary)
+    
             # 분류 결과를 스마트폰으로 반환 (JSON 형태로 반환)
             response_data = {
                 'text': result,
-                'sum_result' : sum_result,
+                'title' : title,
+                'summary' : summary,
+                'sum_result' : sum_result
             }
+            
             return JsonResponse(response_data)
         
         except Exception as e:
