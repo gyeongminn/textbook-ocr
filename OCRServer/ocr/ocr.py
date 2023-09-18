@@ -13,7 +13,6 @@ def show_image(image):
     plt.show()
     return
 
-
 def detect_annotation_object(image):
     # Extract Red image
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
