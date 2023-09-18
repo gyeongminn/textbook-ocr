@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import easyocr
 import cv2
 
+reader = easyocr.Reader(['ko', 'en'], gpu=True)
 
 def show_image(image):
     plt.figure(figsize=(30, 20))
@@ -53,7 +54,7 @@ def draw_ocr_result(image, ocr_data, annotation_data):
 
 
 def detect_main_text_using_pitch(text_data):
-    
+    print("call detect_main_text_using_pitch")
     def get_y_pos(data):
         pos, string, score = data
         return pos[0][1], pos[2][1]
@@ -87,14 +88,12 @@ def detect_main_text_using_pitch(text_data):
 
     return main_text_data
 
-reader = easyocr.Reader(['ko', 'en'])
-result = reader.readtext('img.jpg')
-
 def do_ocr(image_path):
+    print("call do_ocr")
     image = cv2.imread(image_path)
-    
+    print("image roaded")
     # OCR
-    reader = easyocr.Reader(['ko', 'en'], gpu=True)
+    
     text_data = reader.readtext(image)
 
     # Detect main text (Rule-Based Method) **This is not perfect yet**
@@ -109,19 +108,4 @@ def do_ocr(image_path):
             continue
         text += string + ' '
     
-    if DEBUG:
-        result_image = draw_ocr_result(image, main_text_data, annotation_data)
-        show_image(result_image)
-    
     return text
-
-
-if __name__ == '__main__':
-    # If DEBUG is True, you can see result image
-    DEBUG = True
-    
-    image = cv2.imread("img.jpg")
-    
-    text = do_ocr(image)
-    
-    print(text)
