@@ -3,15 +3,15 @@ import matplotlib.pyplot as plt
 import easyocr
 import cv2
 
+# 전역환경에서 로드 => 시간 단축용
+reader = easyocr.Reader(['ko', 'en'], gpu=True)
 
 def show_image(image):
     plt.figure(figsize=(30, 20))
     plt.axis('off')
     plt.imshow(image)
     plt.show()
-    
     return
-
 
 def detect_annotation_object(image):
     # Extract Red image
@@ -53,7 +53,7 @@ def draw_ocr_result(image, ocr_data, annotation_data):
 
 
 def detect_main_text_using_pitch(text_data):
-    
+    print("call detect_main_text_using_pitch")
     def get_y_pos(data):
         pos, string, score = data
         return pos[0][1], pos[2][1]
@@ -87,12 +87,13 @@ def detect_main_text_using_pitch(text_data):
 
     return main_text_data
 
-
+  
 def do_ocr(image_path):
+    print("call do_ocr")
     image = cv2.imread(image_path)
-    
+    print("image roaded")
     # OCR
-    reader = easyocr.Reader(['ko', 'en'], gpu=True)
+    
     text_data = reader.readtext(image)
 
     # Detect main text (Rule-Based Method) **This is not perfect yet**
@@ -107,19 +108,4 @@ def do_ocr(image_path):
             continue
         text += string + ' '
     
-    if DEBUG:
-        result_image = draw_ocr_result(image, main_text_data, annotation_data)
-        show_image(result_image)
-    
     return text
-
-
-if __name__ == '__main__':
-    # If DEBUG is True, you can see result image
-    DEBUG = True
-    
-    image = cv2.imread("img.jpg")
-    
-    text = do_ocr(image)
-    
-    print(text)
