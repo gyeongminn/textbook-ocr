@@ -14,7 +14,6 @@ def genQuiz(request):
         data = json.loads(request.body.decode('utf-8'))
         
         # gpt_pro 함수에 전달하고 결과를 받음
-        # 여기서 가정은 data에 "content"라는 키가 있고 그 값이 gpt_pro에 전달될 문자열이라는 것입니다.
         result = gpt_pro(data['content'])
         
         # 결과를 JsonResponse로 반환
@@ -82,12 +81,16 @@ def imageToText(request):
     return JsonResponse(response_data)
 
 
+# ocr코드 완성 전 테스트용 api => 이미지를 전달받아 저장한후, 사전에 작성해둔 더미데이터로 gpt요약을 시도한다.
 @csrf_exempt
 def imageToTextTest(request):
     # 이미지로 불러오는데 실패할 경우, fail이라는 값을 가져오게 끔 기본값을 fail로 설정
     response_data = {
-            'text': "fail",
-        }
+        'text': "fail",
+        'title' : "fail",
+        'summary' : "fail",
+        'sum_result' : "fail"
+    }
     if request.method == 'POST' and request.FILES.get('image'):
         image = request.FILES['image']
         # 디렉토리에 book.jpg이름으로 저장
@@ -131,7 +134,10 @@ def imageToTextTest(request):
 def generateProblem(request):
     # 이미지로 불러오는데 실패할 경우, fail이라는 값을 가져오게 끔 기본값을 fail로 설정
     quiz = {
-            'text': "fail",
+        "question": "fail",
+        "selections": "fail",
+        "answer": "fail",
+        "commentary" : "fail"
     }
 
     if request.method == 'POST':

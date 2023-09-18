@@ -47,7 +47,6 @@ ALLOWED_HOSTS = ["*"] # 모든 주소 엑세스 허용
 
 INSTALLED_APPS = [
     'ocr',
-    'gpts',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

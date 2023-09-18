@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import easyocr
 import cv2
 
+# 전역환경에서 로드 => 시간 단축용
 reader = easyocr.Reader(['ko', 'en'], gpu=True)
 
 def show_image(image):
@@ -10,7 +11,6 @@ def show_image(image):
     plt.axis('off')
     plt.imshow(image)
     plt.show()
-    
     return
 
 
