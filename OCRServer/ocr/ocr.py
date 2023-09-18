@@ -87,6 +87,7 @@ def detect_main_text_using_pitch(text_data):
 
     return main_text_data
 
+  
 def do_ocr(image_path):
     print("call do_ocr")
     image = cv2.imread(image_path)
