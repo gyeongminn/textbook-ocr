@@ -1,19 +1,27 @@
 from PIL import ImageFont, ImageDraw, Image
+from time import time
 import matplotlib.pyplot as plt
 import easyocr
 import cv2
 
-# 전역환경에서 로드 => 시간 단축용
+# Load easyocr reader 
 reader = easyocr.Reader(['ko', 'en'], gpu=True)
 
+
 def show_image(image):
-    plt.figure(figsize=(30, 20))
+    print('call show_image')
+    
+    plt.figure(figsize=(10, 8))
     plt.axis('off')
     plt.imshow(image)
     plt.show()
+    
     return
 
+
 def detect_annotation_object(image):
+    print('call detect_annotation_object')
+    
     # Extract Red image
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, (160, 200, 0), (179, 255, 255)) 
@@ -40,6 +48,8 @@ def detect_annotation_object(image):
 
 
 def draw_ocr_result(image, ocr_data, annotation_data):
+    print('call draw_ocr_result')
+    
     image = Image.fromarray(image)
     draw = ImageDraw.Draw(image)
 
@@ -54,6 +64,7 @@ def draw_ocr_result(image, ocr_data, annotation_data):
 
 def detect_main_text_using_pitch(text_data):
     print("call detect_main_text_using_pitch")
+    
     def get_y_pos(data):
         pos, string, score = data
         return pos[0][1], pos[2][1]
@@ -88,13 +99,28 @@ def detect_main_text_using_pitch(text_data):
     return main_text_data
 
   
-def do_ocr(image_path):
+def do_ocr(image_path, pyramid_level=1, remove_text=(), debug=False):
     print("call do_ocr")
+    
+    total_time_start = time()
+    
+    # Load image
     image = cv2.imread(image_path)
     print("image roaded")
-    # OCR
     
-    text_data = reader.readtext(image)
+    # Resize image (Gaussian Filter)
+    ocr_image = image[:]
+    for _ in range(1, pyramid_level):
+        ocr_image = cv2.pyrDown(ocr_image)
+    
+    # Read text
+    ocr_time_start = time()
+    text_data = reader.readtext(ocr_image)
+    print(f'OCR Time : {time() - ocr_time_start:.2f}s')
+    
+    if len(text_data) == 0:
+        print('OCR failed')
+        return
 
     # Detect main text (Rule-Based Method) **This is not perfect yet**
     main_text_data = detect_main_text_using_pitch(text_data)
@@ -102,10 +128,46 @@ def do_ocr(image_path):
     # Detect annotation (Rule-Based Method)
     annotation_data = detect_annotation_object(image)
     
+    # Get height of textbox
+    height_mean = 0
+    for pos, string, score in main_text_data:
+        height_mean += pos[2][1] - pos[0][1]
+    height_mean //= len(main_text_data)
+    
+    # Read text using annotation data
+    ocr_time_start = time()
+    for x, y, w, h, _ in annotation_data:
+        anno_img = image[max(0, int(y - height_mean * 1.7)): y + h, x: x + w]
+        anno_text = reader.readtext(anno_img)
+        print(f'important word : {anno_text[0][1]}')
+        if debug:
+            show_image(anno_img)
+    print(f'Annotation OCR Time : {time() - ocr_time_start:.2f}s')
+    
+    # Text post-processing
     text = ''
     for pos, string, score in main_text_data:
-        if score < 0.2:
-            continue
-        text += string + ' '
-    
+        for item in remove_text:
+            if item in string:
+                break
+        else:
+            text += string + ' '
+    text = '.\n'.join(text.split('. '))
+
+    if debug:
+        show_image(draw_ocr_result(image, main_text_data, annotation_data))
+
+    print(f'Total time : {time() - total_time_start:.2f}s')
+
     return text
+
+
+# Example Code
+image_path = '/Users/gyeongmin/Work/Github/DjangoServer/OCRServer/ocr/img.jpg'
+result = do_ocr(
+    image_path,
+    pyramid_level=2,
+    remove_text=('Competitive Programming',), 
+    debug=False
+)
+print(result)
