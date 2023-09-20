@@ -134,10 +134,10 @@ def imageToTextTest(request):
 def generateProblem(request):
     # 이미지로 불러오는데 실패할 경우, fail이라는 값을 가져오게 끔 기본값을 fail로 설정
     quiz = {
-        "question": "fail",
-        "selections": "fail",
-        "answer": "fail",
-        "commentary" : "fail"
+        "question": "[fail]",
+        "selections": "[fail][fail][fail][fail]",
+        "answer": "[fail]",
+        "commentary" : "[fail]"
     }
 
     if request.method == 'POST':
@@ -149,36 +149,54 @@ def generateProblem(request):
         # get_pro 에 해당 요약된 노트 내용 전달
         problem_result = gpt_pro(content)
 
-        # 정규 표현식을 사용하여 문자열을 파싱
-        query_match = re.search(r'&(.+)&', problem_result)
-        answer_list_matches = re.findall(r'#(.+?)#', problem_result)
-        answer_num_match = re.search(r'\*(.*?)\*', problem_result)
-        commentary_match = re.findall(r'@(.*?)@', problem_result)
 
-        # query, answerList, answerNum 추출
-        question = query_match.group(1) if query_match else ""
-        selections = answer_list_matches if answer_list_matches else []
-        answer = answer_num_match.group(1) if answer_num_match else ""
-        commentary = [match.strip() for match in commentary_match]
-        
-        # 결과를 []로 감싸기
-        question = f"[{question}]"
-        selections = "[" + "][".join(selections) + "]"
-        answer = f"[{answer}]"
-        commentary = "[" + "][".join(commentary) + "]"
+        # 각 질문과 선택지를 추출하는 정규 표현식 패턴
+        pattern = r'&([^&]+)&([\s\S]*?)%(\d+)%([^@]+)@([\s\S]*?)(?=&|\n|$)'
 
-        # 분류 결과를 스마트폰으로 반환 (JSON 형태로 반환)
-        # Quiz 객체 생성
-        quiz = {
-            "question": question,
-            "selections": selections,
-            "answer": answer,
-            "commentary" : commentary
+        matches = re.findall(pattern, problem_result)
+
+        # 추출된 데이터를 JSON 형식으로 구성
+
+        ques = ''
+        selec = ''
+        ans = ''
+        comment = ''
+
+        for match in matches:
+            question = match[0].strip()
+            selections = [sel.strip() for sel in match[1].split('#') if sel.strip()]
+            answer = match[2].strip()
+            commentary = match[4].strip()
+
+            question = f"[{question}]"
+            selections = "[" + "][".join(selections) + "]"
+            answer = f"[{answer}]"
+
+            # commentary에서 마지막 @를 제거
+            if commentary.endswith('@'):
+                commentary = commentary[:-1]
+
+            commentary = f"[{commentary}]"
+
+            ques += question
+            selec += selections
+            ans += answer
+            comment += commentary
+            
+            # data.append(item)
+        json_data = {
+                "question": ques,
+                "selections": selec,
+                "answer": ans,
+                "commentary": comment
         }
 
-        # Quiz 객체를 출력
-        print(quiz)
+        # JSON 형식으로 출력
+        # json_data = json.dumps(item, ensure_ascii=False, indent=4)
+
+        # 결과 출력
+        print(json_data)
         
-        return JsonResponse(quiz)
+        return JsonResponse(json_data)
     # 이미지를 저장하지 못했다면 => 앞서 저장한 fail이 Json으로 반환될 것임
     return JsonResponse(quiz)
