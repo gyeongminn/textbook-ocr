@@ -156,8 +156,9 @@ def do_ocr(image_path, pyramid_level=1, remove_text=(), debug=False):
         
         if debug:
             print(f'Individual OCR Time : {time() - tmp_time:.2f}s', data)
+            text_image = draw_ocr_result(text_image, [], data, [])
             show_image(text_image)
-            
+    
     print(f'OCR Time : {time() - ocr_time_start:.2f}s')
 
     if len(text_data) == 0:
@@ -182,6 +183,8 @@ def do_ocr(image_path, pyramid_level=1, remove_text=(), debug=False):
     for x, y, w, h, _ in annotation_area:
         anno_img = image[max(0, int(y - height_mean * 1.7)): y + h, x: x + w]
         text_tmp = reader.readtext(anno_img)
+        if not text_tmp:
+            continue
         annotation_text.append(text_tmp[0][1])
         if debug:
             show_image(anno_img)
@@ -202,7 +205,7 @@ def do_ocr(image_path, pyramid_level=1, remove_text=(), debug=False):
         show_image(draw_ocr_result(image, main_text_area, text_data, annotation_area))
 
     print(f'Total time : {time() - total_time_start:.2f}s')
-    print('end ocr')
+    print('end do_ocr')
 
     return text, annotation_text
 
