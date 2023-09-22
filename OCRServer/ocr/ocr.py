@@ -126,7 +126,7 @@ def detect_text_area(image):
     return main_text_area
 
 
-def do_ocr(image_path, pyramid_level=1, remove_text=(), debug=False):
+def do_ocr(image_path, pyramid_level=2, remove_text=(), debug=False):
     print("call do_ocr")
 
     total_time_start = time()

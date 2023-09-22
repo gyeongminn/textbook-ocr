@@ -48,7 +48,7 @@ def gpt_sum(data,annotation):
         사과는 주스, 파이, 잼 등 다양한 요리에 사용될 수 있습니다. 
         유기농 사과는 화학물질이 사용되지 않아 건강에 더욱 좋다고 알려져 있습니다.
 
-        키워드 : [ ]
+        키워드 : []
         """},
         {"role": "assistant", 
         "content": """
@@ -74,7 +74,7 @@ def gpt_sum(data,annotation):
 
     # # user_content = input("user : ")
     # NOTE: annotation은 배열 형태여야함, 최공적으로 프롬프트에 키워드 : ['키워드1','키워드2'] 와 같은 형태로 입력되는것이 목표
-    messages.append({"role": "user", "content": f"{data}" +"\n\n + 키워드 : "+str(annotation)})
+    messages.append({"role": "user", "content": f"{data}" +"\n\n키워드 : "+str(annotation)})
 
     completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
 
