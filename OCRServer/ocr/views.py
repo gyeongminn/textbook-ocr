@@ -101,9 +101,18 @@ def imageToTextTest(request):
 
         # get_sum에 요약할 내용 입력
         sum_result = gpt_sum("""
-자동차(自動車, automobile) 또는 간단히 차(車, car)는 원동기의 힘을 통해 차체의 바퀴를 노면과 마찰시켜 그 반작용으로 움직이는 $교통 수단$을 말한다. 자동차는 20세기 이후 인류의 가장 보편적인 교통 수단이 되었으며, 다양한 과학 기술과 목적이 모여 만들어져 현대 문명에 빠질 수 없는 것 중 하나다. 현대의 자동차는 휘발유, 경유, 가스, 전기, 수소 등을 연료로 움직인다.
-본래 원동기의 동력을 이용하는 탈것은 사전적인 의미의 자동차에 속한다. 대한민국 법령에서는 원동기장치자전거[2], 전기자전거나 전동휠체어 등은 제외한 자동차관리법 제3조와 대통령령으로 규정하는 탈것을 자동차라고 한다. 군용차의 경우 기술적 제원으로는 군용무기로 간주해 자동차관리법의 적용대상은 아니지만, 공도상에서는 장갑차, 표준차량, 민수차량 모두 도로교통법상의 자동차로 인정한다는 대법원 판례(94도1519)가 있다.
-            """)
+8장 알고리롬 설계 기법 이 장에서는 고급 알고리롬 설계 기법올 몇 가지 살펴마다 .
+8.1절에서는 비트 연산을 이용하여 데이터지 효율적으로 처리하는 비트 병렬 알 고리증올 살펴분다.
+반복문올 비트 연산으로 치환하는 방법올 주로 살펴보며, 그렇 게 함으로새 알고리증의 수행 시간올 크게 개선할 수 있다.
+8.2절에서는 분할 상환 분석올 다루며, 이는 알고리증에서 일런의 연산을 수행하 논 데 드는 시간올 추정할 때 사용된다 .
+이 기법올 이용하여 보다 작으면서 가장 가 까운 원소와 슬라이당 원도의 최솟값올 구하는 알고리증올 분석한다.
+8.3절에서는 특정한 함수의 최솟값을 효율적으로 구하는 삼진 탄색과 몇 가지 다 른 기법올 살펴본다 .
+8.1 비트 병렬 알고리좀 비트 병력 알고리롬 (bit-parallel algorithm) 은 어떤 수에 대한 비트 연산을 수행할 때, 그 수름 구성하고 있는 각 비트률 병렬적으로 처리할 수 있다는 사실에 입각한 알고리롬이다.
+즉, 어떤 알고리증의 수행 과정올 비트 연산을 이용하여 효율적으로 구현할 수 있도록 표현한다면, 이는 효율적인 알고리롬올 설계하는 한 가지 방법이 된다.
+8.1.1 해망 거리 길이가 같은 두 문자열 @와 b 사이의 해망 거리(Hamming distance) hammingta, b논 두 문자열이 일치하지 않는 위치의 개수이다.
+예틀 들면 다음과 같다.
+8.1 비트 병렬 알고리롬 133 
+""",['비트 병렬 알고리롬', '해망 거리('])
         
         # 정규 표현식을 사용하여 제목과 요약 추출
         title_match = re.search(r'\[(.*?)\]', sum_result)
@@ -143,60 +152,39 @@ def generateProblem(request):
     if request.method == 'POST':
         
         content = json.loads(request.body)
-        
         print(f'content : {content}')
-
-        # get_pro 에 해당 요약된 노트 내용 전달
         problem_result = gpt_pro(content)
 
+        # 각 질문을 분리하기 위한 패턴 (두 개 이상의 연속된 개행으로 분리)
+        problems = re.split(r'\n{2,}', problem_result)
+        ques, selec, ans, comment = "", "", "", ""
+        
+        for problem in problems:
+            pattern = r'&([^&]+)&([\s\S]*?)%(\d+(?:,\d+)*)%([^@]+)@([\s\S]*)'
+            match = re.search(pattern, problem)
 
-        # 각 질문과 선택지를 추출하는 정규 표현식 패턴
-        pattern = r'&([^&]+)&([\s\S]*?)%(\d+)%([^@]+)@([\s\S]*?)(?=&|\n|$)'
+            if match:
+                question = match.group(1).strip()
+                selections = [sel.strip() for sel in match.group(2).split('#') if sel.strip()]
+                answer = match.group(3).strip()
+                commentary = match.group(5).replace('@', '').strip()
 
-        matches = re.findall(pattern, problem_result)
+                ques += f"[{question}]"
+                selec += "[" + "][".join(selections) + "]"
+                ans += f"[{answer}]"
+                comment += f"[{commentary}]"
 
-        # 추출된 데이터를 JSON 형식으로 구성
+        # answer이 번호가 아닌 경우로 오는 경우
 
-        ques = ''
-        selec = ''
-        ans = ''
-        comment = ''
 
-        for match in matches:
-            question = match[0].strip()
-            selections = [sel.strip() for sel in match[1].split('#') if sel.strip()]
-            answer = match[2].strip()
-            commentary = match[4].strip()
-
-            question = f"[{question}]"
-            selections = "[" + "][".join(selections) + "]"
-            answer = f"[{answer}]"
-
-            # commentary에서 마지막 @를 제거
-            if commentary.endswith('@'):
-                commentary = commentary[:-1]
-
-            commentary = f"[{commentary}]"
-
-            ques += question
-            selec += selections
-            ans += answer
-            comment += commentary
-            
-            # data.append(item)
         json_data = {
-                "question": ques,
-                "selections": selec,
-                "answer": ans,
-                "commentary": comment
+            "question": ques,
+            "selections": selec,
+            "answer": ans,
+            "commentary": comment
         }
 
-        # JSON 형식으로 출력
-        # json_data = json.dumps(item, ensure_ascii=False, indent=4)
-
-        # 결과 출력
         print(json_data)
-        
         return JsonResponse(json_data)
-    # 이미지를 저장하지 못했다면 => 앞서 저장한 fail이 Json으로 반환될 것임
+
     return JsonResponse(quiz)
