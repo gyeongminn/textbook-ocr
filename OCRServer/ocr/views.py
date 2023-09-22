@@ -6,6 +6,7 @@ from .ocr import do_ocr  # ocr.py에서 do_ocr 함수 import
 from .gpt_api import gpt_sum, gpt_pro
 import re
 import json
+import difflib
 
 @csrf_exempt
 def genQuiz(request):
@@ -139,6 +140,22 @@ def imageToTextTest(request):
     return JsonResponse(response_data)
 
 
+# 유사도 가장 높은 번호 찾기
+def closest_answer(answer, selections):
+    max_ratio = -1
+    index = -1
+    
+    for i, sel in enumerate(selections):
+        s = difflib.SequenceMatcher(None, answer, sel)
+        ratio = s.ratio()
+        
+        if ratio > max_ratio:
+            max_ratio = ratio
+            index = i + 1
+            
+    return str(index)
+
+
 @csrf_exempt
 def generateProblem(request):
     # 이미지로 불러오는데 실패할 경우, fail이라는 값을 가져오게 끔 기본값을 fail로 설정
@@ -158,24 +175,28 @@ def generateProblem(request):
         # 각 질문을 분리하기 위한 패턴 (두 개 이상의 연속된 개행으로 분리)
         problems = re.split(r'\n{2,}', problem_result)
         ques, selec, ans, comment = "", "", "", ""
-        
-        for problem in problems:
-            pattern = r'&([^&]+)&([\s\S]*?)%(\d+(?:,\d+)*)%([^@]+)@([\s\S]*)'
+
+        for i, problem in enumerate(problems):
+            print(f"problem #{i + 1} : {problem}")
+            pattern = r'&([^&]+)&([\s\S]*?)%([^%]+)%([^@]+)@([\s\S]*)'
             match = re.search(pattern, problem)
 
             if match:
                 question = match.group(1).strip()
                 selections = [sel.strip() for sel in match.group(2).split('#') if sel.strip()]
                 answer = match.group(3).strip()
-                commentary = match.group(5).replace('@', '').strip()
 
+                # answer가 숫자만 포함하고 있지 않으면 selections에서 해당 내용의 인덱스 찾기
+                if not answer.isdigit():
+                    answer = closest_answer(answer, selections)
+                else:
+                    answer = re.search(r'(\d+)', answer).group(1)
+
+                commentary = match.group(5).replace('@', '').strip()
                 ques += f"[{question}]"
                 selec += "[" + "][".join(selections) + "]"
                 ans += f"[{answer}]"
                 comment += f"[{commentary}]"
-
-        # answer이 번호가 아닌 경우로 오는 경우
-
 
         json_data = {
             "question": ques,
