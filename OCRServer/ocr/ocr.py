@@ -24,7 +24,7 @@ def detect_annotation_object(image):
 
     # Extract Red image
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    mask = cv2.inRange(hsv, (160, 200, 0), (179, 255, 255))
+    mask = cv2.inRange(hsv, (40, 40, 0), (179, 255, 255))
     red_image = cv2.bitwise_and(image, image, mask=mask)
 
     # Convert red image to gray image
