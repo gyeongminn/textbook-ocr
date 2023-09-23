@@ -182,12 +182,12 @@ def do_ocr(image_path, pyramid_level=2, remove_text=(), debug=False):
     ocr_time_start = time()
     for x, y, w, h, _ in annotation_area:
         anno_img = image[max(0, int(y - height_mean * 1.7)): y + h, x: x + w]
+        if debug:
+            show_image(anno_img)
         text_tmp = reader.readtext(anno_img)
         if not text_tmp:
             continue
         annotation_text.append(text_tmp[0][1])
-        if debug:
-            show_image(anno_img)
             
     print(f'Annotation OCR Time : {time() - ocr_time_start:.2f}s')
 
