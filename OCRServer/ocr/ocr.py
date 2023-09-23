@@ -109,11 +109,11 @@ def detect_text_area(image):
     _, bin_image = cv2.threshold(gray_img, 127, 255, cv2.THRESH_BINARY_INV)
 
     # Morphology - Closing
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (500 , 50))
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (300 , 50))
     closed_image = cv2.morphologyEx(bin_image, cv2.MORPH_CLOSE, kernel)
 
     # Morphology - Dilation
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (500, 50))
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (300, 50))
     dilated_image = cv2.dilate(closed_image, kernel, iterations=1)
 
     _, _, stats, _ = cv2.connectedComponentsWithStats(dilated_image)
