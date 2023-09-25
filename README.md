@@ -1,8 +1,6 @@
 # Textbook OCR
 This is the OCR part of the 'SumNote' project submitted to the Hansung University Engineering Competitive Exhibition.
 
----
-
 ## Used Library
 - Opencv
 - EasyOCR
